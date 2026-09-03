@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Unified Backend Server",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "uvicorn",
+        "main:app",
+        "--reload",
+        "--port",
+        "8000"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run All Unified Pytest Tests",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "tests/",
+        "-v"
+      ],
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "APMC: Trigger Pipeline On-Demand",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-c",
+        "from pipeline import pipeline; import json; res = pipeline.run(); print(json.dumps(res, indent=2))"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Fruit: Generate Sample Dataset",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-c",
+        "from fruit_classifier.dataset_manager import dataset_manager; import json; res = dataset_manager.generate_sample_dataset(15); print(json.dumps(res, indent=2))"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

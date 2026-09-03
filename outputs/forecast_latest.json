@@ -1,0 +1,77 @@
+{
+  "status": "success",
+  "metadata": {
+    "commodity": "Tomato",
+    "market": "Pune",
+    "forecast_horizon_days": 7,
+    "model_used": "Holt-Winters Exponential Smoothing",
+    "generated_at": "2026-09-03T00:15:55.081857",
+    "last_observed_date": "2026-09-03",
+    "last_observed_price": 2441.29,
+    "trend_direction": "STABLE",
+    "trend_change_percent": -0.16
+  },
+  "holdout_metrics": {
+    "mae": 97.45,
+    "rmse": 101.6,
+    "mape_pct": 3.98
+  },
+  "forecast": [
+    {
+      "date": "2026-09-04",
+      "day_of_week": "Friday",
+      "predicted_price": 2447.71,
+      "lower_bound": 2330.77,
+      "upper_bound": 2564.65,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-05",
+      "day_of_week": "Saturday",
+      "predicted_price": 2454.66,
+      "lower_bound": 2289.28,
+      "upper_bound": 2620.03,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-06",
+      "day_of_week": "Sunday",
+      "predicted_price": 2457.46,
+      "lower_bound": 2254.91,
+      "upper_bound": 2660.0,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-07",
+      "day_of_week": "Monday",
+      "predicted_price": 2460.26,
+      "lower_bound": 2226.38,
+      "upper_bound": 2694.14,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-08",
+      "day_of_week": "Tuesday",
+      "predicted_price": 2456.24,
+      "lower_bound": 2194.75,
+      "upper_bound": 2717.72,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-09",
+      "day_of_week": "Wednesday",
+      "predicted_price": 2436.98,
+      "lower_bound": 2150.54,
+      "upper_bound": 2723.42,
+      "unit": "INR / Quintal"
+    },
+    {
+      "date": "2026-09-10",
+      "day_of_week": "Thursday",
+      "predicted_price": 2437.49,
+      "lower_bound": 2128.09,
+      "upper_bound": 2746.88,
+      "unit": "INR / Quintal"
+    }
+  ]
+}
