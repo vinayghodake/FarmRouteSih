@@ -1,0 +1,1788 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FarmRoute — Intelligent harvest decision support, logistics optimization, time-to-market grading, GPS mandi locator, and AI crop analysis for Maharashtra farmers." />
+    <title>FarmRoute — Smart Harvest Selling & Logistics</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <!-- Leaflet OpenStreetMap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Leaflet OpenStreetMap JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  </head>
+  <body>
+    <!-- Top Site Header -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#dashboard" aria-label="FarmRoute home">
+          <div class="brand-mark">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a10 10 0 0 1 10 10c0 5.25-3.75 8.75-10 10S2 17.25 2 12a10 10 0 0 1 10-10z"></path>
+              <path d="M12 8v8"></path>
+              <path d="m8.5 12 7-4"></path>
+              <path d="m8.5 12 7 4"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span>Farm<span class="highlight">Route</span></span>
+            <span class="sub-text" data-i18n="tagline">Smart Harvest Selling & Logistics</span>
+          </div>
+        </a>
+
+        <!-- Quick Status & Tools -->
+        <div class="header-actions">
+          <div class="live-indicator" id="network-status" title="Live Server & Route Engine Ready">
+            <span class="status-pulse"></span>
+            <span class="status-text" id="status-label">Live Server Mode · OSM Ready</span>
+          </div>
+
+          <!-- Quick Farmer Profile Button in Header -->
+          <button id="btn-header-profile" class="btn-pill profile-pill" data-view="profile" title="View Farmer Profile">
+            <span class="avatar-mini">👨‍🌾</span>
+            <span id="header-farmer-name">Ramesh Patil</span>
+          </button>
+          
+          <button id="lang-toggle" class="btn-pill" aria-label="Switch Language">
+            <span class="flag">🇮🇳</span> <span id="lang-text">मराठी</span>
+          </button>
+
+          <button id="btn-quick-save" class="btn-icon" title="Save Current Scenario">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+          </button>
+
+          <button id="mobile-menu" class="icon-button" aria-label="Toggle navigation">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Main App Shell -->
+    <div class="app-shell">
+      <!-- Sidebar Navigation -->
+      <aside id="navigation" class="sidebar" aria-label="Main Navigation">
+        <div class="sidebar-mobile-header">
+          <span class="mob-header-title">🚜 FarmRoute Decision Menu</span>
+          <button type="button" id="btn-close-sidebar" class="sidebar-close-btn" aria-label="Close navigation">✕</button>
+        </div>
+        <div class="sidebar-section-title" data-i18n="navWorkflow">DECISION WORKFLOW</div>
+        <nav class="nav-menu">
+          <button class="nav-item active" data-view="dashboard">
+            <span class="nav-icon">🌾</span>
+            <span class="nav-label" data-i18n="navProfile">Farm & Harvest</span>
+          </button>
+          <button class="nav-item" data-view="quality">
+            <span class="nav-icon">🔬</span>
+            <span class="nav-label" data-i18n="navQuality">Crop Quality Analyser</span>
+            <span class="badge-new">AI</span>
+          </button>
+          <button class="nav-item" data-view="recommendation">
+            <span class="nav-icon">✦</span>
+            <span class="nav-label" data-i18n="navRecommendation">Route Recommendation</span>
+          </button>
+          <button class="nav-item" data-view="logistics">
+            <span class="nav-icon">🚚</span>
+            <span class="nav-label" data-i18n="navLogistics">Logistics & Freight</span>
+          </button>
+          <button class="nav-item" data-view="timing">
+            <span class="nav-icon">⏳</span>
+            <span class="nav-label" data-i18n="navTiming">Time Grading & Storage</span>
+          </button>
+          <button class="nav-item" data-view="markets">
+            <span class="nav-icon">📈</span>
+            <span class="nav-label" data-i18n="navMarkets">Market Intelligence</span>
+          </button>
+          <button class="nav-item" data-view="buyers">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-label" data-i18n="navBuyers">Direct Buyer Network</span>
+          </button>
+          <button class="nav-item" data-view="payments">
+            <span class="nav-icon">💳</span>
+            <span class="nav-label" data-i18n="navPayments">Payments & Escrow</span>
+            <span class="badge-verified">Safe</span>
+          </button>
+          <button class="nav-item" data-view="legal-shield">
+            <span class="nav-icon">⚖️</span>
+            <span class="nav-label" data-i18n="navLegalShield">Anti-Fraud & Legal</span>
+            <span class="badge-new">LAW</span>
+          </button>
+          <div class="sidebar-divider"></div>
+          <button class="nav-item" data-view="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label" data-i18n="navUserProfile">Farmer Profile & 7/12</span>
+            <span class="badge-verified">KYC</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="pilot-badge-sidebar">
+            <div class="badge-dot"></div>
+            <div>
+              <strong data-i18n="coverageTitle">Maharashtra Statewide</strong>
+              <p data-i18n="coverageSub">OSM & OSRM Routing Live</p>
+            </div>
+          </div>
+          <div class="quick-stats-summary" id="quick-lot-summary">
+            <span data-i18n="currentLot">Current Lot:</span> <b id="summary-weight">2,000 kg</b> (Grade <b id="summary-grade">A</b>)
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- All-Section Navigation Tabs Bar (Scrollable on mobile & desktop) -->
+        <nav class="workflow-stepper" aria-label="Application tabs">
+          <button class="step-btn active" data-step="dashboard">
+            <span class="step-icon">🌾</span>
+            <span class="step-text" data-i18n="navProfile">Farm Lot</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="quality">
+            <span class="step-icon">🔬</span>
+            <span class="step-text" data-i18n="navQuality">Quality (AI)</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="recommendation">
+            <span class="step-icon">✦</span>
+            <span class="step-text" data-i18n="navRecommendation">Best Route</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="logistics">
+            <span class="step-icon">🚚</span>
+            <span class="step-text" data-i18n="navLogistics">Logistics & Fleet</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="timing">
+            <span class="step-icon">⏳</span>
+            <span class="step-text" data-i18n="navTiming">Storage Timing</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="markets">
+            <span class="step-icon">📈</span>
+            <span class="step-text" data-i18n="navMarkets">Market Prices</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="buyers">
+            <span class="step-icon">🤝</span>
+            <span class="step-text" data-i18n="navBuyers">Buyers Network</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="payments">
+            <span class="step-icon">💳</span>
+            <span class="step-text" data-i18n="navPayments">Payments</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="legal-shield">
+            <span class="step-icon">⚖️</span>
+            <span class="step-text" data-i18n="navLegalShield">Anti-Fraud</span>
+          </button>
+          <div class="step-divider"></div>
+          <button class="step-btn" data-step="profile">
+            <span class="step-icon">👤</span>
+            <span class="step-text" data-i18n="navUserProfile">Profile 7/12</span>
+          </button>
+        </nav>
+
+        <!-- SECTION 1: FARM & HARVEST PROFILE -->
+        <section id="dashboard" class="view active">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow" data-i18n="dashEyebrow">DECISION SUPPORT FOR MAHARASHTRA FARMERS</p>
+              <h1 data-i18n="dashTitle">Find the best route for your harvest.</h1>
+              <p class="lead-text" data-i18n="dashSubtitle">Compare verified APMC mandis and direct corporate buyers by the money you actually take home after transport, packing, and mandi handling costs.</p>
+            </div>
+            <div class="pilot-badge">
+              <span class="badge-icon">📍</span>
+              <div>
+                <strong data-i18n="pilotBadgeTitle">Nashik Onion Pilot</strong>
+                <p data-i18n="pilotBadgeSub">3 Mandis · 6 Direct Buyers · 5 Warehouses</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Farm Input Form Panel -->
+            <form id="farm-form" class="panel form-panel">
+              <!-- Step 1: Harvest Details -->
+              <div class="panel-title">
+                <span class="step-badge">01</span>
+                <div>
+                  <h2 data-i18n="step1Title">Your Harvest Lot & Farm Location</h2>
+                  <p data-i18n="step1Sub">Specify crop origin and quantity for exact road route calculation.</p>
+                </div>
+              </div>
+
+              <!-- GPS Location Bar & Dynamic Location Search -->
+              <div class="gps-location-bar">
+                <div class="gps-primary-row">
+                  <button id="btn-detect-gps" class="btn-gps" type="button">
+                    <span class="gps-icon">📍</span>
+                    <span id="gps-btn-label" data-i18n="btnDetectGPS">Detect My Location (GPS)</span>
+                  </button>
+                  <div class="loc-search-box">
+                    <input type="text" id="input-loc-search" placeholder="Search village, taluka, mandi in Maharashtra..." autocomplete="off" />
+                    <button type="button" id="btn-run-loc-search" class="btn-loc-search" title="Search Location">🔍 Search</button>
+                    <div id="loc-search-results" class="loc-search-dropdown" style="display:none;"></div>
+                  </div>
+                </div>
+                <div class="gps-history-row">
+                  <div class="history-left">
+                    <span class="history-label">🕒 Recent:</span>
+                    <div id="location-history-chips" class="quick-loc-chips">
+                      <span class="empty-history-hint">No recent searches yet. Search a mandi or tap GPS.</span>
+                    </div>
+                  </div>
+                  <div id="gps-status-badge" class="gps-status-pill">
+                    <span class="status-dot-static"></span>
+                    <span id="gps-status-text">Manual selection (Tap to detect live GPS)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="input-grid">
+                <label>
+                  <span data-i18n="lblCommodity">Commodity / Crop</span>
+                  <select id="commodity">
+                    <option value="red_onion">Red Nashik Onion (नाशिक लाल कांदा)</option>
+                    <option value="garwa_onion">Garwa / Rabi Late Onion (गावरान रब्बी)</option>
+                    <option value="pol_onion">Pol / Early Kharif Onion (पोळ खरीप)</option>
+                    <option value="tomato">Nashik Hybrid Tomato (टोमॅटो)</option>
+                    <option value="pomegranate">Bhagwa Pomegranate (डाळिंब)</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span data-i18n="lblDistrict">District (जिल्हा)</span>
+                  <select id="district"></select>
+                </label>
+
+                <label>
+                  <span data-i18n="lblTaluka">Farm Taluka / Town (तालुका)</span>
+                  <select id="taluka">
+                    <option value="">Choose your taluka</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span data-i18n="lblQuantity">Total Lot Quantity (kg)</span>
+                  <div class="input-unit-wrap">
+                    <input id="quantity" type="number" min="100" step="100" value="2000" />
+                    <span class="input-unit">kg</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Quick Quantity Chips -->
+              <div class="quick-amounts-bar">
+                <span class="quick-label" data-i18n="lblQuickTonnage">Quick Select:</span>
+                <div class="quick-amounts" aria-label="Quick quantity selection">
+                  <button type="button" data-quantity="500">500 kg (10 bags)</button>
+                  <button type="button" data-quantity="1000">1 Tonne (20 bags)</button>
+                  <button class="selected" type="button" data-quantity="2000">2 Tonnes (Mini-truck)</button>
+                  <button type="button" data-quantity="5000">5 Tonnes (Pickup)</button>
+                  <button type="button" data-quantity="10000">10 Tonnes (14-ft)</button>
+                </div>
+              </div>
+
+              <!-- Live Mandi Action -->
+              <div class="mandi-finder-banner">
+                <div class="banner-content">
+                  <span class="banner-icon">⌖</span>
+                  <div>
+                    <strong data-i18n="findMandiTitle">Discover Nearest APMC Mandis on Live Map</strong>
+                    <p data-i18n="findMandiSub">Calculates live driving distances, toll tariffs, and real road travel time via OpenStreetMap & OSRM.</p>
+                  </div>
+                </div>
+                <button id="find-mandi-from-farm" class="find-mandi-button" type="button" data-i18n="btnFindMandi">
+                  <span>🗺️</span> Find & Map Nearest Mandis
+                </button>
+              </div>
+
+              <!-- Step 2: Quality Grade Selection -->
+              <div class="panel-title section-gap">
+                <span class="step-badge">02</span>
+                <div>
+                  <h2 data-i18n="step2Title">Quality Grade Assessment</h2>
+                  <p data-i18n="step2Sub">Grade determines premium eligibility and corporate buyer acceptance.</p>
+                </div>
+              </div>
+
+              <div class="grade-options">
+                <label class="grade-card selected">
+                  <input type="radio" name="grade" value="A" checked />
+                  <div class="grade-header">
+                    <b>Grade A (Export / Retail)</b>
+                    <span class="grade-badge green">Premium</span>
+                  </div>
+                  <span>Uniform 55mm+, well-cured tight neck, dry bronze papery skin.</span>
+                </label>
+
+                <label class="grade-card">
+                  <input type="radio" name="grade" value="B" />
+                  <div class="grade-header">
+                    <b>Grade B (Standard Market)</b>
+                    <span class="grade-badge blue">Standard</span>
+                  </div>
+                  <span>Marketable quality, minor skin peeling, standard mandi grade.</span>
+                </label>
+
+                <label class="grade-card">
+                  <input type="radio" name="grade" value="C" />
+                  <div class="grade-header">
+                    <b>Grade C (Processing / Local)</b>
+                    <span class="grade-badge amber">Discounted</span>
+                  </div>
+                  <span>Dehydration / processing use, variable size, moist/thick neck.</span>
+                </label>
+              </div>
+
+              <!-- AI Analyser Quick Link Callout -->
+              <div class="ai-callout-card">
+                <div class="ai-icon">🔬</div>
+                <div class="ai-text">
+                  <strong data-i18n="aiHelpTitle">Unsure about your crop's grade?</strong>
+                  <p data-i18n="aiHelpSub">Use the interactive Crop Quality Analyser with camera or sample photos to measure curing and neck moisture.</p>
+                </div>
+                <button type="button" class="btn-link-action" id="btn-goto-quality" data-i18n="btnLaunchAnalyser">
+                  Open Analyser <span>→</span>
+                </button>
+              </div>
+
+              <!-- Step 3: Timing & Cash Flow Constraints -->
+              <div class="panel-title section-gap">
+                <span class="step-badge">03</span>
+                <div>
+                  <h2 data-i18n="step3Title">Timing & Cash Flow Preferences</h2>
+                  <p data-i18n="step3Sub">Storage duration and urgent liquidity needs shape your net payout.</p>
+                </div>
+              </div>
+
+              <div class="timing-controls-grid">
+                <div class="range-card">
+                  <div class="range-header">
+                    <label for="storage" data-i18n="lblPlannedStorage">Planned Storage (दिवस)</label>
+                    <output id="storage-output" class="range-val">0 days (Sell Now)</output>
+                  </div>
+                  <input id="storage" type="range" min="0" max="90" step="5" value="0" />
+                  <div class="range-ticks">
+                    <span>0d</span><span>15d</span><span>30d</span><span>60d</span><span>90d</span>
+                  </div>
+                </div>
+
+                <div class="range-card">
+                  <div class="range-header">
+                    <label for="shelf-life" data-i18n="lblShelfLife">Estimated Shelf Life (टिकाऊ क्षमता)</label>
+                    <output id="shelf-output" class="range-val">45 days</output>
+                  </div>
+                  <input id="shelf-life" type="range" min="5" max="120" step="5" value="45" />
+                  <div class="range-ticks">
+                    <span>5d (High Risk)</span><span>45d</span><span>90d+ (Cured)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Urgent Cash Toggle -->
+              <label class="switch-row">
+                <div class="switch-text">
+                  <b data-i18n="lblUrgentCash">Urgent Cash Need (तात्काळ रोख गरज)</b>
+                  <small data-i18n="lblUrgentCashSub">Prioritizes same-day settlement options over delayed payment corporate buyers.</small>
+                </div>
+                <input id="urgent" type="checkbox" />
+                <i class="switch-slider"></i>
+              </label>
+
+              <!-- Submit Action Button -->
+              <button class="primary-button" type="submit" id="btn-calculate-route">
+                <span data-i18n="btnCalcRoute">Calculate Optimal Selling Route</span>
+                <span class="arrow">→</span>
+              </button>
+            </form>
+
+            <!-- Right Info Column -->
+            <aside class="info-column">
+              <!-- Transparency Card -->
+              <article class="panel why-card">
+                <div class="card-icon-badge">⚖️</div>
+                <p class="eyebrow" data-i18n="howItWorks">TRANSPARENT ALGORITHM</p>
+                <h2 data-i18n="howItWorksTitle">Zero guesswork. Real net profit.</h2>
+                <p data-i18n="howItWorksDesc">Every selling channel is evaluated based on actual take-home money minus transport and market costs.</p>
+                <div class="formula-box">
+                  <div class="formula-label" data-i18n="decisionWeights">Decision Score Formula:</div>
+                  <div class="formula-tags">
+                    <span class="f-tag highlight"><b>40%</b> Net Return</span>
+                    <span class="f-tag"><b>20%</b> Buyer Reliability</span>
+                    <span class="f-tag"><b>15%</b> Market Demand</span>
+                    <span class="f-tag"><b>15%</b> Price Trend</span>
+                    <span class="f-tag"><b>10%</b> Storage Suitability</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Live Market Snapshot Card -->
+              <article class="market-snapshot panel">
+                <div class="snapshot-header">
+                  <div>
+                    <p class="eyebrow" data-i18n="benchmarkPrice">BENCHMARK MODAL PRICE</p>
+                    <h3 data-i18n="lasalgaonToday">Lasalgaon APMC (Today)</h3>
+                  </div>
+                  <span class="positive-pill">↑ +7.5% (5d)</span>
+                </div>
+                <div class="snapshot-price-row">
+                  <strong class="big-price">₹28.50 <small>/kg</small></strong>
+                  <span class="quintal-sub">₹2,850 / quintal</span>
+                </div>
+                <div class="spark-bars-container">
+                  <span class="chart-caption" data-i18n="price5dTrend">5-Day Price Trend (Aug 28 – Sep 1):</span>
+                  <div class="spark-bars" aria-label="Five-day rising price chart">
+                    <div class="bar-col"><span class="bar-tip">₹26.5</span><i style="height: 24px;"></i><span>28A</span></div>
+                    <div class="bar-col"><span class="bar-tip">₹27.0</span><i style="height: 30px;"></i><span>29A</span></div>
+                    <div class="bar-col"><span class="bar-tip">₹27.5</span><i style="height: 36px;"></i><span>30A</span></div>
+                    <div class="bar-col"><span class="bar-tip">₹28.0</span><i style="height: 42px;"></i><span>31A</span></div>
+                    <div class="bar-col active"><span class="bar-tip">₹28.5</span><i style="height: 48px;"></i><span>1S</span></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Dynamic Farm Tip Card -->
+              <article class="tip-card panel" id="dynamic-tip">
+                <span class="tip-icon">💡</span>
+                <div>
+                  <b data-i18n="proTipTitle">Farmer Profit Multiplier</b>
+                  <p id="tip-text" data-i18n="proTipText">At 2,000 kg, every ₹1.00/kg difference in price or freight efficiency puts an extra <b>₹2,000 in your pocket</b>.</p>
+                </div>
+              </article>
+            </aside>
+          </div>
+
+          <!-- Live Mandi Discovery Results Drawer (Rendered via JS with Leaflet Map) -->
+          <article id="live-mandi-results" class="live-mandi-results panel" aria-live="polite">
+            <div class="mandi-header-flex">
+              <div>
+                <p class="eyebrow" data-i18n="liveOsmRouting">LIVE OSM & OSRM ROUTE CALCULATION</p>
+                <h2 id="live-mandi-title">Nearest APMC & Sabji Mandis from Farm</h2>
+                <p class="text-muted" id="live-mandi-sub">Interactive route map and actual trip costing loaded automatically.</p>
+              </div>
+            </div>
+            <!-- Leaflet Map Container -->
+            <div id="mandi-map" class="mandi-map-view"></div>
+            <!-- Ranked Cards -->
+            <div id="live-mandi-cards" class="live-mandi-list"></div>
+          </article>
+        </section>
+
+        <!-- SECTION 2: CROP QUALITY & AI IMAGE ANALYSER -->
+        <section id="quality" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="qualityEyebrow">COMPUTER VISION & HARVEST DIAGNOSTICS</p>
+              <h1 data-i18n="qualityTitle">Crop Quality & Visual Analyser</h1>
+              <p data-i18n="qualitySub">Inspect bulb curing, neck tightness, surface defects, and AGMARK grading using authentic photos or live camera capture.</p>
+            </div>
+            <div class="quality-header-actions">
+              <span class="status-pill verified">✓ AGMARK 2026 Ready</span>
+            </div>
+          </div>
+
+          <div class="quality-layout">
+            <!-- Left: Interactive Analyzer Studio -->
+            <article class="panel analyzer-panel">
+              <div class="studio-header">
+                <div>
+                  <h2 data-i18n="visualScanStudio">Visual Inspection Studio</h2>
+                  <p data-i18n="visualScanSub">Select an authentic field sample or upload your own farm photo.</p>
+                </div>
+                <div class="sample-mode-selector">
+                  <span class="mode-label" data-i18n="lblPresets">Presets:</span>
+                </div>
+              </div>
+
+              <!-- 4 Authentic Crop Presets with Real Images -->
+              <div class="sample-options">
+                <button class="sample-card selected" type="button" data-analysis="cured">
+                  <img src="assets/onion-cured.jpg" alt="Well-cured Rabi onions" />
+                  <div class="sample-info">
+                    <span class="sample-tag green">Grade A</span>
+                    <b>Well-cured Rabi Lot</b>
+                    <small>Dry bronze skin · tight neck · 60d hold</small>
+                  </div>
+                </button>
+
+                <button class="sample-card" type="button" data-analysis="moist">
+                  <img src="assets/onion-moist.jpg" alt="Moist Kharif onions" />
+                  <div class="sample-info">
+                    <span class="sample-tag amber">Grade B</span>
+                    <b>Moist Kharif Lot</b>
+                    <small>Succulent neck · high moisture · sell now</small>
+                  </div>
+                </button>
+
+                <button class="sample-card" type="button" data-analysis="sprouted">
+                  <img src="assets/onion-sprouted.jpg" alt="Sprouted and wet onions" />
+                  <div class="sample-info">
+                    <span class="sample-tag red">Grade C</span>
+                    <b>Sprouted / Moist Lot</b>
+                    <small>Active sprout · fungal rot risk · distress</small>
+                  </div>
+                </button>
+
+                <button class="sample-card" type="button" data-analysis="export">
+                  <img src="assets/onion-export.jpg" alt="Export Grade A1 onions" />
+                  <div class="sample-info">
+                    <span class="sample-tag gold">Grade Extra</span>
+                    <b>Export Grade A1</b>
+                    <small>Uniform 55mm · dry sealed neck · premium</small>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Drag & Drop / File Upload Area -->
+              <div class="upload-dropzone" id="drop-zone">
+                <input id="onion-photo" type="file" accept="image/*" class="file-input" />
+                <div class="dropzone-content">
+                  <div class="upload-icon">📷</div>
+                  <div>
+                    <strong data-i18n="uploadPrompt">Drop farm photo here or click to browse</strong>
+                    <p id="photo-name" data-i18n="uploadSub">Supports JPG, PNG, WEBP from smartphone camera or gallery</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Canvas Inspection Display -->
+              <div class="canvas-viewport-wrap" id="canvas-wrapper">
+                <div class="canvas-toolbar">
+                  <div class="tool-group">
+                    <span class="tool-label" data-i18n="overlays">Overlays:</span>
+                    <button type="button" class="btn-overlay active" data-overlay="neck">📏 Neck Constriction</button>
+                    <button type="button" class="btn-overlay active" data-overlay="curing">✨ Curing Heatmap</button>
+                    <button type="button" class="btn-overlay active" data-overlay="sizing">📐 Sizing Caliper</button>
+                    <button type="button" class="btn-overlay active" data-overlay="defects">⚠️ Sprout/Rot Scan</button>
+                  </div>
+                  <button type="button" class="btn-reset-zoom" id="btn-reset-canvas">↺ Reset</button>
+                </div>
+
+                <div class="canvas-stage">
+                  <canvas id="crop-canvas" width="600" height="420"></canvas>
+                  <div class="canvas-legend" id="canvas-legend">
+                    <span class="legend-item"><i class="leg-color leg-green"></i> Dry Neck &lt;10mm</span>
+                    <span class="legend-item"><i class="leg-color leg-blue"></i> Papery Tunic</span>
+                    <span class="legend-item"><i class="leg-color leg-amber"></i> Moisture Zone</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="analyser-action-row">
+                <button id="analyse-onions" class="primary-button" type="button">
+                  <span data-i18n="btnRunScan">⚡ Run AI Visual Diagnostics</span>
+                </button>
+              </div>
+            </article>
+
+            <!-- Right: Diagnostics & Field Guidance Output -->
+            <aside class="quality-results-col">
+              <div id="analysis-result" class="panel analysis-result-panel">
+                <div class="result-header">
+                  <span class="eyebrow" id="analysis-confidence">QUALITY SCORECARD</span>
+                  <div class="grade-big-pill" id="scorecard-grade">GRADE A</div>
+                </div>
+                <h2 id="scorecard-title">Store 45–60 days in a ventilated chawl</h2>
+                <p id="scorecard-detail" class="scorecard-desc">Dry bronze-red scales and a tightly constricted neck indicate a prime well-cured lot suitable for holding for post-monsoon festive demand.</p>
+
+                <!-- Key Metrics Grid -->
+                <div class="analysis-metric-grid">
+                  <div class="analysis-metric">
+                    <span class="metric-label" data-i18n="mCuring">Curing Index</span>
+                    <b class="metric-val text-green" id="metric-curing">94%</b>
+                    <small data-i18n="mCuringSub">Dry papery skin seal</small>
+                  </div>
+                  <div class="analysis-metric">
+                    <span class="metric-label" data-i18n="mMoisture">Estimated Moisture</span>
+                    <b class="metric-val text-blue" id="metric-moisture">13.5%</b>
+                    <small data-i18n="mMoistureSub">Safe for long storage</small>
+                  </div>
+                  <div class="analysis-metric">
+                    <span class="metric-label" data-i18n="mNeck">Neck Tightness</span>
+                    <b class="metric-val text-green" id="metric-neck">7.2 mm</b>
+                    <small data-i18n="mNeckSub">Constricted dry neck</small>
+                  </div>
+                  <div class="analysis-metric">
+                    <span class="metric-label" data-i18n="mSprout">Sprouting Risk</span>
+                    <b class="metric-val text-green" id="metric-sprout">4%</b>
+                    <small data-i18n="mSproutSub">Deep vegetative dormancy</small>
+                  </div>
+                </div>
+
+                <!-- Field Action Guidance List -->
+                <div class="field-guidance-box">
+                  <h4 data-i18n="fieldActions">Recommended Field Actions:</h4>
+                  <ul id="guidance-list">
+                    <li>Dry, intact papery skin provides natural fungal barrier.</li>
+                    <li>Store in raised, ventilated bamboo chawl (कांदा चाळ) with bottom airflow.</li>
+                    <li>Avoid deep truck stacks over 5 layers during transit.</li>
+                  </ul>
+                </div>
+
+                <!-- Apply to Recommendation Button -->
+                <div class="apply-sync-row">
+                  <button id="btn-apply-quality" class="btn-sync-action" type="button">
+                    <span class="sync-icon">✓</span>
+                    <span data-i18n="btnApplyToForm">Apply Findings to My Selling Recommendation</span>
+                  </button>
+                  <p class="sync-note" data-i18n="syncNote">Automatically synchronizes Grade, Shelf Life, and Storage Duration into the route calculator.</p>
+                </div>
+              </div>
+
+              <!-- AGMARK Digital Quality Certification & Inspection Portal -->
+              <article class="panel certificate-panel">
+                <div class="cert-header">
+                  <div class="cert-icon">🏅</div>
+                  <div>
+                    <p class="eyebrow" data-i18n="certEyebrow">GOVERNMENT AGMARK CERTIFICATION</p>
+                    <h3 data-i18n="certTitle">Interactive AGMARK Quality Certificate Portal</h3>
+                    <p data-i18n="certSub">Generate or link digital AGMARK quality certification. Unlocks official legal premiums on corporate buyer contracts.</p>
+                  </div>
+                </div>
+
+                <div class="certificate-form">
+                  <div class="cert-form-row">
+                    <label style="flex:1;">
+                      <span data-i18n="certGrade">Assigned AGMARK Grade</span>
+                      <select id="certificate-grade">
+                        <option value="1.5" selected>Special Grade (विशेष प्रत - Extra Class) — +₹1.50/kg</option>
+                        <option value="0.8">Good Grade (उत्कृष्ट प्रत - Class I) — +₹0.80/kg</option>
+                        <option value="0.25">Fair Grade (साधारण प्रत - Class II) — +₹0.25/kg</option>
+                        <option value="0">No certificate (Standard Spot / Auction)</option>
+                        <option value="-0.5">Ordinary Grade (दुय्यम प्रत - Processing) — −₹0.50/kg</option>
+                      </select>
+                    </label>
+
+                    <label style="flex:1;">
+                      <span data-i18n="certNumber">Certificate / C.A. License Number</span>
+                      <input id="certificate-number" value="AGM/MH/2026/89421" placeholder="AGM/MH/2026/89421" />
+                    </label>
+                  </div>
+
+                  <div class="cert-btn-actions">
+                    <button id="verify-certificate" class="primary-button" type="button" style="margin-top:0;">
+                      <span>✓ Apply AGMARK Premium</span>
+                    </button>
+                    <button id="btn-generate-agmark-card" class="secondary-button" type="button" style="margin-top:0;">
+                      <span>⚡ Generate Official QR Certificate</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Live Generated AGMARK Digital Certificate Card -->
+                <div id="agmark-card-preview" class="agmark-preview-wrap">
+                  <div class="agmark-badge-ribbon">DIRECTORATE OF MARKETING & INSPECTION · GOVT OF INDIA</div>
+                  <div class="agmark-inner-card">
+                    <div class="agmark-seal-col">
+                      <div class="agmark-emblem">🏅</div>
+                      <b class="agmark-grade-badge" id="agmark-preview-grade-badge">SPECIAL</b>
+                      <div class="qr-placeholder" title="Digital Verification QR Code">
+                        <div class="qr-box">
+                          <span class="qr-matrix">⬛⬜⬛<br/>⬜⬛⬜<br/>⬛⬜⬛</span>
+                          <small>SCAN QR</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="agmark-info-col">
+                      <h4>CERTIFICATE OF AGRICULTURAL QUALITY</h4>
+                      <p class="cert-subline">Issued under Agricultural Produce (Grading and Marking) Act, 1937</p>
+                      <div class="cert-fields">
+                        <div><span>Cert No:</span> <b id="cert-display-no">AGM/MH/2026/89421</b></div>
+                        <div><span>Commodity:</span> <b>Nashik Red Onion (Garwa Late Kharif)</b></div>
+                        <div><span>Issued To:</span> <b id="cert-farmer-name">Ramesh Shankar Patil</b></div>
+                        <div><span>Lot Size:</span> <b id="cert-lot-qty">2,000 kg (Grade A)</b></div>
+                        <div><span>Laboratory:</span> <b>Regional Agmark Grading Lab, Nashik / Navi Mumbai</b></div>
+                        <div><span>Test Metrics:</span> <b id="cert-test-metrics">Moisture: 13.5% · Neck: 7.2mm · Curing: 94%</b></div>
+                        <div><span>Validity:</span> <b>45 Days from Dispatch (WDRA Compliant)</b></div>
+                      </div>
+                      <div class="cert-footer-row">
+                        <span class="cert-status-tag active">✓ Digitally Verified & Active</span>
+                        <button type="button" class="btn-cert-print" onclick="window.print()">🖨️ Print / Download Certificate</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p id="certificate-status" class="certificate-status verified">✓ Verified Special Grade (AGM/MH/2026/89421) · +₹1.50/kg premium active across all routes.</p>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <!-- SECTION 3: ROUTE RECOMMENDATION -->
+        <section id="recommendation" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="recEyebrow">OPTIMAL HARVEST DISPOSITION</p>
+              <h1 data-i18n="recTitle">Optimal Route & Payout Recommendation</h1>
+              <p id="recommendation-context">2,000 kg · Grade A · Niphad, Nashik · Sell Now</p>
+            </div>
+            <div class="rec-actions">
+              <button id="save-scenario" class="btn-pill secondary">
+                <span>♡</span> <span data-i18n="btnSaveScenario">Save Scenario</span>
+              </button>
+              <button id="print-recommendation" class="btn-pill primary" onclick="window.print()">
+                <span>🖨</span> <span data-i18n="btnPrintReport">Print Summary</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="recommendation-results"></div>
+        </section>
+
+        <!-- SECTION 4: LOGISTICS & FREIGHT SUITE -->
+        <section id="logistics" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="logisticsEyebrow">FREIGHT TRANSPARENCY & FLEET CALCULATOR</p>
+              <h1 data-i18n="logisticsTitle">Logistics, Transport & Cold Storage</h1>
+              <p data-i18n="logisticsSub">Plan road freight, compare vehicle types, review loading/unloading (Hamali) tariffs, and locate accredited warehouses.</p>
+            </div>
+          </div>
+
+          <!-- Vehicle Fleet Selector Card -->
+          <article class="panel fleet-selector-panel">
+            <div class="fleet-header">
+              <div>
+                <h2 data-i18n="fleetSelectorTitle">Choose Your Transport Vehicle</h2>
+                <p data-i18n="fleetSelectorSub">Tariffs calibrated for Maharashtra APMC routes. Loading and road permit costs included.</p>
+              </div>
+              <div class="auto-recommend-tag" id="fleet-auto-tag">
+                <span>Recommended for your lot (2,000 kg): <b>Mini Truck (Tata Ace)</b></span>
+              </div>
+            </div>
+
+            <div class="fleet-grid">
+              <button type="button" class="vehicle-card selected" data-vehicle="mini">
+                <div class="veh-icon">🛻</div>
+                <div class="veh-details">
+                  <div class="veh-title">Mini Truck (Tata Ace / Jeeto)</div>
+                  <div class="veh-capacity">Payload: 1.5 – 2.5 Tonnes</div>
+                  <div class="veh-rate">₹18 <small>/ route km</small></div>
+                </div>
+                <span class="veh-tag">Best for &lt;2.5T</span>
+              </button>
+
+              <button type="button" class="vehicle-card" data-vehicle="pickup">
+                <div class="veh-icon">🚚</div>
+                <div class="veh-details">
+                  <div class="veh-title">Pickup (Bolero Maxi Truck)</div>
+                  <div class="veh-capacity">Payload: 2.5 – 3.5 Tonnes</div>
+                  <div class="veh-rate">₹24 <small>/ route km</small></div>
+                </div>
+                <span class="veh-tag">Best for 3T</span>
+              </button>
+
+              <button type="button" class="vehicle-card" data-vehicle="medium">
+                <div class="veh-icon">🚛</div>
+                <div class="veh-details">
+                  <div class="veh-title">Medium Truck (14-ft / 17-ft)</div>
+                  <div class="veh-capacity">Payload: 6.0 – 9.0 Tonnes</div>
+                  <div class="veh-rate">₹34 <small>/ route km</small></div>
+                </div>
+                <span class="veh-tag">Bulk Economy</span>
+              </button>
+
+              <button type="button" class="vehicle-card" data-vehicle="heavy">
+                <div class="veh-icon">🚛</div>
+                <div class="veh-details">
+                  <div class="veh-title">Heavy Multi-Axle (10-Wheeler)</div>
+                  <div class="veh-capacity">Payload: 15 – 25 Tonnes</div>
+                  <div class="veh-rate">₹46 <small>/ route km</small></div>
+                </div>
+                <span class="veh-tag">Long Haul</span>
+              </button>
+
+              <button type="button" class="vehicle-card" data-vehicle="fpo">
+                <div class="veh-icon">🤝</div>
+                <div class="veh-details">
+                  <div class="veh-title">FPO Shared Freight Pool</div>
+                  <div class="veh-capacity">Consolidated load share</div>
+                  <div class="veh-rate">₹12 <small>/ route km</small></div>
+                </div>
+                <span class="veh-tag green">Save 33%</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Logistics Calculations & Breakdown -->
+          <div class="logistics-grid">
+            <!-- Transport Ledger Breakdown -->
+            <article class="panel">
+              <h2 data-i18n="freightBreakdownTitle">Freight Cost Breakdown</h2>
+              <div class="big-number" id="logistics-big-rate">
+                ₹18 <small>/ route km</small>
+              </div>
+              <p class="text-muted" data-i18n="freightDesc">Mini-truck transport for your lot. Cost is distributed across the complete tonnage to calculate your effective per-kg deduction.</p>
+              
+              <div class="cost-ledger-table">
+                <div class="ledger-row">
+                  <span>Selected Origin:</span>
+                  <b id="origin-logistics">Niphad, Nashik</b>
+                </div>
+                <div class="ledger-row">
+                  <span>Average Distance to APMC:</span>
+                  <b id="logistics-avg-dist">18 km</b>
+                </div>
+                <div class="ledger-row">
+                  <span>Base Freight Cost:</span>
+                  <b id="logistics-base-freight">₹324 per trip</b>
+                </div>
+                <div class="ledger-row">
+                  <span>Loading / Hamali (हमाली @ ₹12/qtl):</span>
+                  <b id="logistics-hamali">₹240 per lot</b>
+                </div>
+                <div class="ledger-row">
+                  <span>Transit Shrinkage & Loss (1%):</span>
+                  <b id="logistics-shrinkage">~20 kg (₹570)</b>
+                </div>
+                <div class="ledger-row total">
+                  <span>Total Delivery Cost:</span>
+                  <b id="logistics-total-cost" class="text-green">₹0.57 / kg</b>
+                </div>
+              </div>
+
+              <!-- Truck Capacity Utilization Meter -->
+              <div class="truck-capacity-meter-box">
+                <div class="meter-label-row">
+                  <span>Vehicle Payload Utilization:</span>
+                  <b id="truck-utilization-pct">80% Loaded</b>
+                </div>
+                <div class="meter-bar-bg">
+                  <div id="truck-utilization-bar" class="meter-bar-fill" style="width: 80%;"></div>
+                </div>
+                <small id="truck-utilization-hint">2,000 kg loaded in 2,500 kg max payload. Optimal fuel efficiency range.</small>
+              </div>
+
+              <!-- Live Diesel Fuel & Operational Expense Breakdown -->
+              <div class="fuel-calc-box">
+                <div class="fuel-row"><span>Estimated Diesel Needed:</span> <b id="fuel-litres">1.6 Litres (11 km/L)</b></div>
+                <div class="fuel-row"><span>Fuel Cost (@ ₹92.50/L):</span> <b id="fuel-cost">₹148</b></div>
+                <div class="fuel-row"><span>Driver & Toll Operational Share:</span> <b id="fuel-misc">₹176</b></div>
+              </div>
+
+              <!-- Shared Freight Pool Toggle & Booking Action -->
+              <div class="shared-pool-toggle-row">
+                <label class="switch-row" style="margin:0;">
+                  <input type="checkbox" id="chk-return-pool" />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">
+                    <b>Return-Trip Shared Pool (Save ~30%)</b>
+                    <small>Consolidates return freight with nearby farmers or FPO.</small>
+                  </span>
+                </label>
+              </div>
+
+              <button type="button" class="primary-button" id="btn-open-booking-modal" style="margin-top:14px;">
+                <span>🚚 Book Transporter / Dispatch Lot</span>
+              </button>
+            </article>
+
+            <!-- Multi-Destination Freight Comparison Matrix -->
+            <article class="panel">
+              <h2 data-i18n="multiMarketTitle">Multi-Mandi Freight Comparison</h2>
+              <p class="text-muted" data-i18n="multiMarketSub">Comparing road transport cost from your taluka to major APMC mandis:</p>
+              
+              <div class="table-wrap">
+                <table class="data-table" id="freight-matrix-table">
+                  <thead>
+                    <tr>
+                      <th>Destination</th>
+                      <th>Distance</th>
+                      <th>Time</th>
+                      <th>Freight/kg</th>
+                      <th>Total Trip</th>
+                    </tr>
+                  </thead>
+                  <tbody id="freight-matrix-body">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <!-- Dynamic Warehouse & Cold Storage Partners Section -->
+          <article class="panel warehouse-suite-panel">
+            <div class="suite-header">
+              <div>
+                <p class="eyebrow">WDRA REGISTERED STORAGE & E-NWR PLEDGE LOANS</p>
+                <h2 data-i18n="warehouseTitle">Dynamic Cold Storages & Warehouses</h2>
+                <p data-i18n="warehouseSub">Road distances, vacancies, and rates calculated live from your farm origin.</p>
+              </div>
+              <div class="wh-filter-chips">
+                <button type="button" class="btn-wh-filter active" data-filter="all">All Storage</button>
+                <button type="button" class="btn-wh-filter" data-filter="wdra">WDRA e-NWR Eligible</button>
+                <button type="button" class="btn-wh-filter" data-filter="cold">Cold Store (0–2°C)</button>
+              </div>
+            </div>
+
+            <!-- Dynamic Pledge Finance Calculator Banner -->
+            <div class="pledge-loan-banner">
+              <div class="loan-icon">🏦</div>
+              <div>
+                <b>NABARD / RBI 70% Warehouse Pledge Loan Estimator:</b>
+                <p>Deposit your <span id="pledge-qty-val">2,000 kg</span> lot in an accredited WDRA godown and receive an instant bank advance of approx. <b class="text-green" id="pledge-loan-val">₹39,900</b> (70% value) at 7% p.a. interest. Meet urgent cash needs without making a distress sale!</p>
+              </div>
+            </div>
+
+            <div id="warehouse-list" class="warehouse-grid"></div>
+
+            <div class="tip-card wide" style="margin-top:16px;">
+              <span class="tip-icon">ℹ️</span>
+              <p><b>WDRA Safety Guarantee:</b> Under the Warehousing (Development and Regulation) Act 2007, godowns are legally insured against fire, spoilage, and theft. The electronic Negotiable Warehouse Receipt (e-NWR) is recognized by all nationalized banks.</p>
+            </div>
+          </article>
+        </section>
+
+        <!-- SECTION 5: TIME GRADING & STORAGE ECONOMICS -->
+        <section id="timing" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="timingEyebrow">DYNAMIC HARVEST HORIZON & TIME ECONOMICS</p>
+              <h1 data-i18n="timingTitle">Time-to-Market Grading & Storage Dynamics</h1>
+              <p data-i18n="timingSub">Calculate projected net profit across 0 to 90 days of holding, balancing market price appreciation against storage rent and moisture shrinkage.</p>
+            </div>
+          </div>
+
+          <!-- Interactive Time Simulator & Peak Profit Window -->
+          <div class="timing-layout">
+            <article class="panel timing-sim-panel">
+              <div class="sim-header">
+                <div>
+                  <h2 data-i18n="simTitle">Storage Duration & Profit Projection Simulator</h2>
+                  <p data-i18n="simSub">Slide to test holding your lot and view the net financial impact.</p>
+                </div>
+                <div class="peak-badge" id="peak-profit-badge">
+                  <span>★ Optimal Window: <b>Store 15–20 Days</b></span>
+                </div>
+              </div>
+
+              <!-- Storage Slider Control -->
+              <div class="sim-slider-wrap">
+                <div class="slider-labels">
+                  <span class="sim-label" data-i18n="holdPeriod">Hold Period:</span>
+                  <span class="sim-value" id="sim-duration-val">20 Days</span>
+                </div>
+                <input type="range" id="sim-storage-slider" min="0" max="90" step="5" value="20" class="sim-range" />
+                <div class="sim-ticks">
+                  <span>0d (Today)</span>
+                  <span>15d</span>
+                  <span>30d</span>
+                  <span>45d</span>
+                  <span>60d</span>
+                  <span>90d</span>
+                </div>
+              </div>
+
+              <!-- Live Simulation Outcome Cards -->
+              <div class="sim-metrics-grid">
+                <div class="sim-metric-card">
+                  <span>Projected Modal Price</span>
+                  <strong id="sim-proj-price">₹29.80 /kg</strong>
+                  <small class="text-green" id="sim-price-diff">+₹1.30 vs Today</small>
+                </div>
+
+                <div class="sim-metric-card">
+                  <span>Storage Fee (भाडे)</span>
+                  <strong id="sim-storage-cost">₹1.60 /kg</strong>
+                  <small id="sim-storage-total">₹3,200 total</small>
+                </div>
+
+                <div class="sim-metric-card">
+                  <span>Weight Dehydration Loss</span>
+                  <strong id="sim-shrinkage-loss">3.2% (64 kg)</strong>
+                  <small class="text-amber" id="sim-shrinkage-cost">−₹1,907 value</small>
+                </div>
+
+                <div class="sim-metric-card highlight">
+                  <span>Net Take-Home Difference</span>
+                  <strong id="sim-net-diff" class="text-green">+₹1,493</strong>
+                  <small id="sim-diff-verdict">Profitable to Hold</small>
+                </div>
+              </div>
+
+              <!-- Breakeven Price Appreciation Analysis -->
+              <div class="breakeven-banner">
+                <div class="be-icon">🎯</div>
+                <div>
+                  <strong data-i18n="beTitle">Required Breakeven Price Appreciation:</strong>
+                  <p id="be-desc">To profit from holding for 20 days, the mandi price must rise by at least <b>₹2.12/kg</b> to cover cold store rent and 3.2% natural moisture shrinkage.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Distress Sale & Spoilage Meter -->
+            <aside class="panel distress-col-panel">
+              <p class="eyebrow" data-i18n="riskMonitor">CROP PRESERVATION MONITOR</p>
+              <h2 data-i18n="spoilageTitle">Spoilage & Distress Risk Meter</h2>
+              <p data-i18n="spoilageSub">Tracks risk of fungal decay, rot, and sprouting over time.</p>
+
+              <div class="risk-gauge-box">
+                <div class="gauge-bar-track">
+                  <div class="gauge-bar-fill" id="risk-fill" style="width: 28%;"></div>
+                </div>
+                <div class="gauge-legend">
+                  <span class="safe">Safe (0-30%)</span>
+                  <span class="caution">Caution (31-65%)</span>
+                  <span class="danger">Distress (66-100%)</span>
+                </div>
+              </div>
+
+              <div class="risk-status-badge" id="risk-badge">
+                <span class="dot-green"></span>
+                <b>LOW SPOILAGE RISK (28%)</b>
+              </div>
+
+              <div class="timeline-factors">
+                <div class="factor-item">
+                  <span>Crop Stage / Season:</span>
+                  <b id="timing-crop-type">Rabi Garwa (High Storage)</b>
+                </div>
+                <div class="factor-item">
+                  <span>Current Neck Curing:</span>
+                  <b id="timing-curing-val">94% Cured</b>
+                </div>
+                <div class="factor-item">
+                  <span>Sprouting Onset Horizon:</span>
+                  <b id="timing-sprout-days">~55 Days</b>
+                </div>
+                <div class="factor-item">
+                  <span>Weather Humidity:</span>
+                  <b>Normal Dry (62% RH)</b>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <!-- Week-by-Week Horizon Table -->
+          <article class="panel table-panel">
+            <div class="table-header-flex">
+              <div>
+                <h2 data-i18n="weekHorizonTitle">Week-by-Week Holding Realisation Matrix</h2>
+                <p class="text-muted" data-i18n="weekHorizonSub">Comprehensive financial breakdown of holding your 2,000 kg lot from Day 0 up to Day 60.</p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table" id="timing-horizon-table">
+                <thead>
+                  <tr>
+                    <th>Timeline</th>
+                    <th>Projected Price</th>
+                    <th>Storage Cost</th>
+                    <th>Moisture Loss</th>
+                    <th>Est. Weight Left</th>
+                    <th>Net Payout</th>
+                    <th>Difference vs Today</th>
+                    <th>Verdict</th>
+                  </tr>
+                </thead>
+                <tbody id="timing-horizon-body">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- SECTION 6: MARKET INTELLIGENCE -->
+        <section id="markets" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="marketsEyebrow">MAHARASHTRA APMC PRICE SIGNALS</p>
+              <h1 data-i18n="marketsTitle">Today's APMC Mandi Signals</h1>
+              <p data-i18n="marketsSub">Real-time daily modal prices, 5-day price momentum, and mandi arrival volumes.</p>
+            </div>
+          </div>
+
+          <div id="market-cards" class="market-grid"></div>
+
+          <article class="panel table-panel">
+            <h2 data-i18n="priceHistoryTitle">Five-Day Modal Price History (₹ / kg)</h2>
+            <div class="table-wrap">
+              <table id="market-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Market (मंडी)</th>
+                    <th>28 Aug</th>
+                    <th>29 Aug</th>
+                    <th>30 Aug</th>
+                    <th>31 Aug</th>
+                    <th>1 Sep</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- SECTION 7: DIRECT BUYERS -->
+        <section id="buyers" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="buyersEyebrow">VERIFIED INSTITUTIONAL DEMAND</p>
+              <h1 data-i18n="buyersTitle">Direct Buyer Network</h1>
+              <p data-i18n="buyersSub">Bypass APMC middleman commissions by selling directly to food processors, retail chains, and exporters.</p>
+            </div>
+          </div>
+
+          <div id="buyer-list" class="buyer-grid"></div>
+        </section>
+
+        <!-- SECTION 8: FARMER USER PROFILE -->
+        <section id="profile" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow" data-i18n="profileEyebrow">FARMER CREDENTIALS & PREFERENCES</p>
+              <h1 data-i18n="profileTitle">Farmer Profile & Land Records</h1>
+              <p data-i18n="profileSub">Manage your land details, 7/12 extract khata, direct buyer payment accounts, and default logistics preferences.</p>
+            </div>
+            <div class="profile-header-actions">
+              <button id="btn-sync-profile-to-form" class="btn-pill primary" type="button">
+                <span>🔄</span> <span data-i18n="btnSyncToForm">Apply Profile to Farm Lot</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="profile-layout">
+            <!-- Left Column: Farmer Credentials & Land -->
+            <div class="profile-col">
+              <!-- Farmer Identity Card -->
+              <article class="panel profile-card">
+                <div class="farmer-avatar-row">
+                  <div class="avatar-large">👨‍🌾</div>
+                  <div>
+                    <h2 id="card-farmer-name">Ramesh Shankar Patil</h2>
+                    <p class="farmer-meta">Niphad, Nashik · Verified Maharashtra Farmer</p>
+                    <div class="kisan-badges">
+                      <span class="status-pill verified">✓ MahaDBT Registered</span>
+                      <span class="status-pill verified">✓ PM-KISAN Active</span>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="profile-form" class="profile-form-grid">
+                  <div class="form-subheading">
+                    <span class="sub-icon">📄</span>
+                    <strong data-i18n="personalDetails">Personal & Farm Registration</strong>
+                  </div>
+
+                  <div class="profile-input-grid">
+                    <label>
+                      <span data-i18n="pFarmerName">Farmer Full Name</span>
+                      <input id="prof-name" value="Ramesh Shankar Patil" required />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pPhone">Mobile / WhatsApp Number</span>
+                      <input id="prof-phone" type="tel" value="+91 98224 51890" required />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pKhata">7/12 Extract Khata No. (खाते क्र.)</span>
+                      <input id="prof-khata" value="KH-2026-NPH-842" placeholder="e.g. KH-7841" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pVillage">Farm Village / Wasti</span>
+                      <input id="prof-village" value="Pimpalgaon Road, Niphad" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pTaluka">Taluka</span>
+                      <input id="prof-taluka" value="Niphad" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pDistrict">District</span>
+                      <input id="prof-district" value="Nashik" />
+                    </label>
+                  </div>
+
+                  <div class="form-subheading section-gap">
+                    <span class="sub-icon">🌱</span>
+                    <strong data-i18n="landDetails">Land Holding & Soil Profile</strong>
+                  </div>
+
+                  <div class="profile-input-grid">
+                    <label>
+                      <span data-i18n="pLandSize">Total Farm Land (Acres)</span>
+                      <input id="prof-land" type="number" step="0.5" value="6.5" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pSoilType">Soil Type (जमीन प्रकार)</span>
+                      <select id="prof-soil">
+                        <option value="black_cotton" selected>Deep Black Cotton (काळी जमीन - पाणी धरून ठेवणारी)</option>
+                        <option value="red_loamy">Red Loamy (तांबडी पोयटा जमीन)</option>
+                        <option value="murum_light">Light Murum (मुरमाड हलकी जमीन)</option>
+                      </select>
+                    </label>
+
+                    <label>
+                      <span data-i18n="pStorageChawl">On-Farm Storage Chawl (Tonnes)</span>
+                      <input id="prof-storage" type="number" step="5" value="30" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pSeason">Primary Onion Season</span>
+                      <select id="prof-season">
+                        <option value="rabi" selected>Rabi / Garwa (रब्बी गावरान - उन्हाळी)</option>
+                        <option value="kharif">Early Kharif (पोळ खरीप)</option>
+                        <option value="late_kharif">Late Kharif / Rangda (रांगडा)</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div class="form-subheading section-gap">
+                    <span class="sub-icon">🏦</span>
+                    <strong data-i18n="bankDetails">Direct Payout Bank & UPI Details</strong>
+                  </div>
+
+                  <div class="profile-input-grid">
+                    <label>
+                      <span data-i18n="pBankName">Bank Name</span>
+                      <input id="prof-bank" value="Bank of Maharashtra" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pAccount">Account Number</span>
+                      <input id="prof-account" value="60184491023" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pIfsc">IFSC Code</span>
+                      <input id="prof-ifsc" value="MAHB0000184" />
+                    </label>
+
+                    <label>
+                      <span data-i18n="pUpi">UPI ID (Instant Corporate Settlement)</span>
+                      <input id="prof-upi" value="9822451890@upi" />
+                    </label>
+                  </div>
+
+                  <button type="submit" class="primary-button" id="btn-save-profile">
+                    <span data-i18n="btnSaveProfile">Save Profile Changes</span>
+                    <span class="arrow">✓</span>
+                  </button>
+                </form>
+              </article>
+            </div>
+
+            <!-- Right Column: Preferences & Saved Calculations -->
+            <div class="profile-col">
+              <!-- Logistics Defaults Card -->
+              <article class="panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">⚙️</span>
+                  <strong data-i18n="sellingPreferences">Selling & Logistics Defaults</strong>
+                </div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:14px;">These settings will automatically initialize your farm calculations.</p>
+
+                <div class="profile-input-grid">
+                  <label>
+                    <span data-i18n="pDefVehicle">Default Transport Vehicle</span>
+                    <select id="prof-def-vehicle">
+                      <option value="mini" selected>Mini Truck (Tata Ace) — ₹18/km</option>
+                      <option value="pickup">Pickup (Bolero Maxi) — ₹24/km</option>
+                      <option value="medium">Medium Truck (14-ft) — ₹34/km</option>
+                      <option value="heavy">Heavy Lorry — ₹46/km</option>
+                      <option value="fpo">FPO Shared Pool — ₹12/km</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span data-i18n="pDefQty">Typical Lot Size (kg)</span>
+                    <input id="prof-def-qty" type="number" step="500" value="2000" />
+                  </label>
+                </div>
+              </article>
+
+              <!-- Farmer Customization Studio Card -->
+              <article class="panel" style="margin-top:20px;">
+                <div class="form-subheading">
+                  <span class="sub-icon">🎨</span>
+                  <strong>Farmer Customization Studio</strong>
+                </div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:12px;">Personalize your profile avatar, favorite mandis, and custom transport rates.</p>
+
+                <!-- Avatar Selector -->
+                <label style="margin-bottom:12px;">
+                  <span style="font-size:12px;font-weight:700;">Select Profile Avatar</span>
+                  <div class="avatar-presets-row" id="avatar-presets-bar">
+                    <button type="button" class="btn-avatar-opt active" data-avatar="👨‍🌾">👨‍🌾</button>
+                    <button type="button" class="btn-avatar-opt" data-avatar="👩‍🌾">👩‍🌾</button>
+                    <button type="button" class="btn-avatar-opt" data-avatar="🚜">🚜</button>
+                    <button type="button" class="btn-avatar-opt" data-avatar="🌾">🌾</button>
+                    <button type="button" class="btn-avatar-opt" data-avatar="🧑‍💼">🧑‍💼</button>
+                  </div>
+                </label>
+
+                <!-- Custom Vehicle Tariff Override -->
+                <div class="profile-input-grid" style="margin-top:10px;">
+                  <label>
+                    <span style="font-size:12px;">Own Vehicle Custom Rate (₹/km)</span>
+                    <input id="prof-custom-veh-rate" type="number" placeholder="e.g. 14 (Optional override)" />
+                  </label>
+                  <label>
+                    <span style="font-size:12px;">Display Density</span>
+                    <select id="prof-density-pref">
+                      <option value="comfortable" selected>Comfortable (Large Touch Buttons)</option>
+                      <option value="compact">Compact Density</option>
+                    </select>
+                  </label>
+                </div>
+
+                <!-- Favorite Mandis Checklist -->
+                <div style="margin-top:12px;">
+                  <span style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;">Favorite / Preferred APMCs</span>
+                  <div class="fav-mandis-checklist">
+                    <label class="check-pill"><input type="checkbox" checked value="Lasalgaon" /> Lasalgaon</label>
+                    <label class="check-pill"><input type="checkbox" checked value="Pimpalgaon" /> Pimpalgaon</label>
+                    <label class="check-pill"><input type="checkbox" checked value="Vashi" /> Vashi (Navi Mumbai)</label>
+                    <label class="check-pill"><input type="checkbox" checked value="Pune" /> Pune</label>
+                    <label class="check-pill"><input type="checkbox" value="Yeola" /> Yeola</label>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Saved Scenarios Ledger Card -->
+              <article class="panel" style="margin-top:20px;">
+                <div class="form-subheading">
+                  <span class="sub-icon">📂</span>
+                  <strong data-i18n="savedScenarios">Saved Harvest Scenarios</strong>
+                </div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:12px;">Stored locally in your browser for fast recall.</p>
+
+                <div id="saved-scenarios-container">
+                  <div class="scenario-item">
+                    <div>
+                      <b>Rabi Lot · 2,000 kg (Grade A)</b>
+                      <small>Niphad → Lasalgaon APMC · ₹27.48/kg Net</small>
+                    </div>
+                    <button type="button" class="btn-pill" id="btn-load-sample-scenario">Load</button>
+                  </div>
+                </div>
+
+                <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                  <button type="button" class="secondary-button" id="btn-export-profile-json">
+                    <span>📥</span> Export Profile (JSON)
+                  </button>
+                  <button type="button" class="secondary-button" id="btn-clear-saved">
+                    <span>🗑</span> Reset Saved Data
+                  </button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 8: FARMER PAYMENTS & DIGITAL ESCROW -->
+        <section id="payments" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow">FINANCIAL SETTLEMENT & SECURITY</p>
+              <h1>Farmer Payouts & Escrow Protection</h1>
+              <p>Manage your direct bank accounts, instant UPI QR settlements, and track digital escrow guarantees before crop dispatch.</p>
+            </div>
+            <div class="payment-badges">
+              <span class="status-pill verified">🛡️ 100% Escrow Protected</span>
+              <span class="status-pill verified">⚡ Instant UPI / RTGS</span>
+            </div>
+          </div>
+
+          <div class="payments-layout">
+            <!-- Left: Payment Accounts & UPI QR -->
+            <div class="payments-col">
+              <article class="panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">🏦</span>
+                  <strong>Verified Bank Account & UPI IDs</strong>
+                </div>
+                <div class="bank-card-visual">
+                  <div class="bank-card-chip"></div>
+                  <div class="bank-card-top">
+                    <b id="pay-bank-name">Bank of Maharashtra</b>
+                    <span class="bank-verified-tag">✓ e-KYC Verified</span>
+                  </div>
+                  <div class="bank-card-num" id="pay-card-acc">•••• •••• 1023</div>
+                  <div class="bank-card-bottom">
+                    <div>
+                      <small>ACCOUNT HOLDER</small>
+                      <div id="pay-card-holder">Ramesh Shankar Patil</div>
+                    </div>
+                    <div>
+                      <small>IFSC CODE</small>
+                      <div id="pay-card-ifsc">MAHB0000184</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- UPI QR Code Instant Payment Box -->
+                <div class="upi-settlement-box">
+                  <div class="upi-qr-frame">
+                    <div class="upi-qr-svg" id="upi-qr-view">
+                      <svg width="110" height="110" viewBox="0 0 24 24" fill="#0f172a">
+                        <path d="M3 3h6v6H3V3zm2 2v2h2V5H5zm8-2h6v6h-6V3zm2 2v2h2V5h-2zM3 13h6v6H3v-6zm2 2v2h2v-2H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v3h-3v-3zm-5 1h2v2h-2v-2zm2 2h3v2h-3v-2zm-7-2h2v2h-2v-2zm0-3h3v2h-3v-2z"/>
+                      </svg>
+                    </div>
+                    <small>Official Merchant QR</small>
+                  </div>
+                  <div class="upi-info">
+                    <b id="pay-upi-id">9822451890@upi</b>
+                    <p>Instant UPI settlement for direct corporate buyers and spot APMC auctions. Funds credited within 12 seconds.</p>
+                    <button type="button" class="btn-pill secondary" id="btn-copy-upi">📋 Copy UPI VPA</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- Right: Escrow Protection System & Settlement Ledger -->
+            <div class="payments-col">
+              <!-- Digital Escrow Shield Explanation -->
+              <article class="panel escrow-shield-panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">🛡️</span>
+                  <strong>How FarmRoute Digital Escrow Protects You</strong>
+                </div>
+                <div class="escrow-steps">
+                  <div class="escrow-step">
+                    <div class="step-circle">1</div>
+                    <div>
+                      <b>Buyer Locks Funds in Escrow</b>
+                      <p>Before your truck departs the farm, the buyer must deposit 100% of the agreed amount into a secure RBI-regulated escrow account.</p>
+                    </div>
+                  </div>
+                  <div class="escrow-step">
+                    <div class="step-circle">2</div>
+                    <div>
+                      <b>Produce Transit & Gate Weighment</b>
+                      <p>Produce is delivered to the mandi or processing facility. Certified electronic weighbridge slip is uploaded.</p>
+                    </div>
+                  </div>
+                  <div class="escrow-step">
+                    <div class="step-circle">3</div>
+                    <div>
+                      <b>Instant Payout Handshake (OTP)</b>
+                      <p>Once weight and grade are matched, the escrow funds are automatically released directly to your bank account or UPI within 30 minutes!</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Live Escrow Simulation & Action -->
+                <div class="active-escrow-card">
+                  <div class="escrow-header">
+                    <span>ACTIVE ESCROW STATUS</span>
+                    <span class="status-pill verified">🔒 ₹56,200 Held in Escrow</span>
+                  </div>
+                  <div class="escrow-meta">Buyer: Sahyadri Agro Processing Ltd · Lot: 2,000 kg Grade A</div>
+                  <div class="escrow-action-row">
+                    <button type="button" class="primary-button" id="btn-simulate-escrow-release" style="margin-top:0;">
+                      <span>⚡ Simulate Weighbridge Handshake & Release ₹56,200</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Recent Settlements Ledger -->
+              <article class="panel">
+                <h3 style="font-size:15px;margin-bottom:12px;">Recent Harvest Settlements</h3>
+                <div class="settlement-ledger-list">
+                  <div class="settlement-item">
+                    <div>
+                      <b>Vashi APMC (Navi Mumbai)</b>
+                      <small>28 Aug 2026 · IMPS Bank Transfer #601844</small>
+                    </div>
+                    <div class="text-right">
+                      <b class="text-green">+₹59,200</b>
+                      <span class="status-pill verified" style="font-size:10px;">Settled</span>
+                    </div>
+                  </div>
+                  <div class="settlement-item">
+                    <div>
+                      <b>Nashik Kisan Producer Co. (FPO)</b>
+                      <small>21 Aug 2026 · UPI Ref #98224518</small>
+                    </div>
+                    <div class="text-right">
+                      <b class="text-green">+₹41,250</b>
+                      <span class="status-pill verified" style="font-size:10px;">Settled</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 9: ANTI-FRAUD & STATUTORY LEGAL REMEDIES UNDER INDIAN LAW -->
+        <section id="legal-shield" class="view">
+          <div class="page-heading compact">
+            <div>
+              <p class="eyebrow">STATUTORY LEGAL REMEDIES UNDER INDIAN LAW</p>
+              <h1>Anti-Fraud & Legal Protection Shield</h1>
+              <p>Know your legal rights under the Maharashtra APMC Act, Negotiable Instruments Act (Section 138), and Bharatiya Nyaya Sanhita (BNS / IPC) against defaulting traders, bounced cheques, and delayed payments.</p>
+            </div>
+            <div class="legal-badges">
+              <span class="status-pill verified">⚖️ Sec 138 NI Act Enforced</span>
+              <span class="status-pill verified">📜 APMC Rule 32 Enforced</span>
+            </div>
+          </div>
+
+          <div class="legal-layout">
+            <!-- Left Column: Legal Powers & Action Center -->
+            <div class="legal-col">
+              <!-- Legal Framework Accordion Card -->
+              <article class="panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">⚖️</span>
+                  <strong>Your Legal Weapons Against Trader Fraud</strong>
+                </div>
+                <div class="law-card-list">
+                  <div class="law-card">
+                    <div class="law-title">
+                      <b>1. Maharashtra APMC Act, 1963 (Section 32 & 37) — Mandatory Same-Day Payment</b>
+                    </div>
+                    <p>Traders and commission agents (आडते) are legally bound to pay farmers on the <b>same day of auction or within 24 hours</b>. Non-payment gives the APMC Secretary the legal power to seize the trader's mandatory bank guarantee deposit and cancel their trading license immediately.</p>
+                  </div>
+
+                  <div class="law-card">
+                    <div class="law-title">
+                      <b>2. Negotiable Instruments Act, 1881 (Section 138) — Bounced Cheque Criminal Case</b>
+                    </div>
+                    <p>If a buyer or trader gives you a cheque that bounces due to insufficient funds, it is a <b>cognizable criminal offence</b>. You have the legal right to send a formal 15-day statutory Demand Notice. Failure to pay within 15 days makes the buyer liable for up to <b>2 years imprisonment plus a fine equal to double the cheque amount</b>.</p>
+                  </div>
+
+                  <div class="law-card">
+                    <div class="law-title">
+                      <b>3. Bharatiya Nyaya Sanhita, 2023 (Sec 316 & 318) / IPC 406 & 420 — Criminal Breach of Trust</b>
+                    </div>
+                    <p>If a buyer takes custody of your crop under false promises or deceitful intention and absconds, an immediate FIR can be lodged under <b>Section 316 (Criminal Breach of Trust) and Section 318 (Cheating)</b> with the Police Station / Cyber Crime Cell.</p>
+                  </div>
+
+                  <div class="law-card">
+                    <div class="law-title">
+                      <b>4. National Agriculture Market (e-NAM) & APMC Dispute Resolution Committee</b>
+                    </div>
+                    <p>Every APMC has a statutory Dispute Sub-Committee under the District Deputy Registrar (DDR) to resolve payment disputes within 7 days, with power of attachment of the buyer's property.</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Trader Trust & Fraud Warning Registry -->
+              <article class="panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">⚠️</span>
+                  <strong>Trader Trust & Fraud Warning Registry</strong>
+                </div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:12px;">Search or verify APMC license holders before handing over your harvest.</p>
+
+                <div class="trader-search-row">
+                  <input id="input-trader-search" placeholder="Search trader name, license number, or APMC gate..." />
+                  <button type="button" class="btn-pill primary" id="btn-check-trader">Check Trust Score</button>
+                </div>
+
+                <div class="trader-status-list">
+                  <div class="trader-status-item verified">
+                    <div>
+                      <b>Sahyadri Agro Processing Ltd (License #DND-2021-98)</b>
+                      <small>Nashik MIDC · 450+ Farmer Transactions Settled</small>
+                    </div>
+                    <span class="status-pill verified">✓ 96% Trust · Clean Record</span>
+                  </div>
+                  <div class="trader-status-item verified">
+                    <div>
+                      <b>Nashik Kisan Producer Co. (FPO) (License #NPH-2023-42)</b>
+                      <small>Niphad Hub · Escrow Compliant</small>
+                    </div>
+                    <span class="status-pill verified">✓ 93% Trust · Same-Day RTGS</span>
+                  </div>
+                  <div class="trader-status-item flagged">
+                    <div>
+                      <b>Om Agro Traders (Unlicensed Middleman / Agent)</b>
+                      <small>Flagged: 3 unpaid farmer complaints in Yeola / Lasalgaon APMC</small>
+                    </div>
+                    <span class="status-pill danger">⚠️ High Risk · Payment Default Reported</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- Right Column: Interactive Legal Action Generators -->
+            <div class="legal-col">
+              <!-- 1-Click Section 138 Legal Notice Generator -->
+              <article class="panel notice-generator-panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">📜</span>
+                  <strong>1-Click Statutory Legal Notice Generator (Sec 138 / APMC)</strong>
+                </div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:14px;">If a buyer has delayed payment or given a bounced cheque, generate a formal legal notice in 30 seconds.</p>
+
+                <form id="form-legal-notice" class="legal-form-grid">
+                  <div class="profile-input-grid">
+                    <label>
+                      <span>Defaulting Buyer / Trader Name</span>
+                      <input id="notice-buyer-name" value="Shree Balaji Agro Traders, APMC Gate 2" required />
+                    </label>
+                    <label>
+                      <span>Unpaid / Bounced Cheque Amount (₹)</span>
+                      <input id="notice-amount" type="number" value="54000" required />
+                    </label>
+                    <label>
+                      <span>Cheque No. / Transaction ID</span>
+                      <input id="notice-cheque-no" value="CHQ-748921 (SBI)" />
+                    </label>
+                    <label>
+                      <span>Harvest Lot & Date Dispatched</span>
+                      <input id="notice-lot-detail" value="2,000 kg Red Onion dispatched on 25 Aug 2026" />
+                    </label>
+                  </div>
+
+                  <button type="submit" class="primary-button" id="btn-generate-legal-notice">
+                    <span>📜 Generate & Download Formal Legal Notice</span>
+                  </button>
+                </form>
+
+                <!-- Generated Notice Draft Display -->
+                <div id="notice-preview-container" class="legal-notice-preview" style="display:none;">
+                  <div class="notice-paper">
+                    <div class="notice-header">
+                      <b>STATUTORY DEMAND NOTICE UNDER SECTION 138 OF NEGOTIABLE INSTRUMENTS ACT, 1881 READ WITH RULE 32 OF APMC ACT</b>
+                    </div>
+                    <div id="notice-body-text" class="notice-body">
+                      <!-- Populated dynamically via JS -->
+                    </div>
+                    <div class="notice-actions-row">
+                      <button type="button" class="btn-pill primary" id="btn-print-notice" onclick="window.print()">🖨️ Print Legal Notice</button>
+                      <button type="button" class="btn-pill secondary" id="btn-whatsapp-notice">📱 Send on WhatsApp to Buyer</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Emergency Helpline & Grievance Lodging -->
+              <article class="panel">
+                <div class="form-subheading">
+                  <span class="sub-icon">🚨</span>
+                  <strong>Emergency Support & Official Grievance Portals</strong>
+                </div>
+                <div class="helpline-grid">
+                  <div class="help-box">
+                    <b>Kisan Call Centre (Govt of India)</b>
+                    <div class="phone">📞 1800-180-1551 (Toll-Free, 6 AM – 10 PM)</div>
+                  </div>
+                  <div class="help-box">
+                    <b>National Cyber Crime Police Cell</b>
+                    <div class="phone">📞 1930 · cybercrime.gov.in</div>
+                  </div>
+                  <div class="help-box">
+                    <b>District APMC Legal Cell (Nashik/Navi Mumbai)</b>
+                    <div class="phone">📞 +91 2550 266120 / +91 22 2788 8000</div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Transporter Dispatch Booking Modal -->
+    <div id="transporter-dispatch-modal" class="modal-backdrop" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>🚚 Instant Transporter Dispatch Booking</h3>
+          <button type="button" class="btn-close-modal" id="btn-close-dispatch-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="dispatch-summary-box">
+            <div class="dispatch-driver-row">
+              <div class="driver-avatar">👨‍✈️</div>
+              <div>
+                <b id="dispatch-driver-name">Santosh Shinde (Kisan Transport Logistics)</b>
+                <p>Vehicle: <b>Tata 407 Pickup (Bolero) · MH-15-EG-8291</b></p>
+                <div class="driver-rating">★ 4.9 (180+ Farm Trips Completed)</div>
+              </div>
+            </div>
+            <div class="dispatch-details-list">
+              <div><span>Route:</span> <b id="dispatch-route-text">Niphad Farm → Lasalgaon APMC</b></div>
+              <div><span>Lot Payload:</span> <b id="dispatch-lot-text">2,000 kg (Red Onion)</b></div>
+              <div><span>Driver ETA to Farm:</span> <b class="text-green">~25 Minutes</b></div>
+              <div><span>Estimated Freight:</span> <b id="dispatch-cost-text">₹324 Total Trip</b></div>
+              <div><span>Gate Dispatch OTP:</span> <b class="otp-highlight" id="dispatch-otp-text">7842</b></div>
+            </div>
+          </div>
+          <p class="text-muted" style="font-size:11.5px;margin-top:10px;">Driver will verify this 4-digit OTP at farm loading. Payment is released only after weighbridge receipt.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="secondary-button" id="btn-dismiss-dispatch">Cancel</button>
+          <button type="button" class="primary-button" id="btn-confirm-dispatch">
+            <span>📞 Call Driver & Confirm Dispatch</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Persistent Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile Navigation Bar">
+      <button type="button" class="mobile-nav-item active" data-view="dashboard">
+        <span class="mob-icon">🌾</span>
+        <span class="mob-label">Farm</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="quality">
+        <span class="mob-icon">🔬</span>
+        <span class="mob-label">Quality</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="recommendation">
+        <span class="mob-icon">✦</span>
+        <span class="mob-label">Route</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="logistics">
+        <span class="mob-icon">🚚</span>
+        <span class="mob-label">Logistics</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="timing">
+        <span class="mob-icon">⏳</span>
+        <span class="mob-label">Storage</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="payments">
+        <span class="mob-icon">💳</span>
+        <span class="mob-label">Payments</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="legal-shield">
+        <span class="mob-icon">⚖️</span>
+        <span class="mob-label">Legal</span>
+      </button>
+      <button type="button" class="mobile-nav-item" data-view="profile">
+        <span class="mob-icon">👤</span>
+        <span class="mob-label">Profile</span>
+      </button>
+    </nav>
+
+    <!-- Global Toast Notification -->
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Application JavaScript -->
+    <script src="app.js"></script>
+  </body>
+</html>
